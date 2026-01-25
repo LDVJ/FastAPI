@@ -10,6 +10,7 @@ class postSchema(BaseModel):
     content: str
     published: bool = True
     rating: int | None = None
+    id: int
 
 def uniqueID(my_posts: List[Dict[str,Any]]) -> int:
     while True:
@@ -24,6 +25,15 @@ def findIndex(id):
     return None
 
 my_posts = [{"title":"title of the post 1","content": "content of the post 1","published":True,"rating":4,"id":1},{"title":"title of the post 2","content": "content of the post 2","published":False,"rating":2,"id":2}]
+
+@app.get('/')
+def root():
+    return {"Message": 'Welcome to my api'}
+
+@app.get('/posts')
+def getPost():
+    post = {"data":my_posts}
+    return post
 
 @app.post('/posts', status_code=status.HTTP_201_CREATED)
 def createPost(posts: postSchema):
@@ -43,6 +53,16 @@ def getPost(id: int):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Post with id = {id} not found')
 # Path Operation
 
+@app.put('/posts/{id}', status_code=status.HTTP_200_OK)
+def updatepost(id:int, post: postSchema):
+    index = findIndex(id)
+    if index is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not post Found with id: {id}")
+    postDict = post.model_dump()
+    postDict['id'] = id
+    my_posts[index] = post
+    return {"message":f"Data of the post id: {id} updated successfully."}
+
 #Delete Post
 @app.delete('/posts/{id}')
 def deletepost(id: int):
@@ -51,27 +71,3 @@ def deletepost(id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not post Found with id: {id}")
     my_posts.pop(index)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-@app.put('/posts/{id}', status_code=status.HTTP_200_OK)
-def updatepost(id:int, post: postSchema):
-    index = findIndex(id)
-    if index is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not post Found with id: {id}")
-    my_posts[index] = post
-    print(my_posts)
-    return {"message":f"Data of the post id: {id} updated successfully."}
-
-
-@app.get('/')
-def root():
-    return {"Message": 'Welcome to my api'}
-
-@app.get('/posts')
-def getPost():
-    post = {"data":my_posts}
-    return post
-
-@app.post('/createPost')
-def create_Post(payload: dict = Body(...)):
-    return {"new_post": f'post with title {payload['title']} is created'}
-# title str, content str, category, published bool
