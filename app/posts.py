@@ -14,6 +14,25 @@ class postSchema(BaseModel):
     is_published: bool = True
     rating: int | None = None
 
+while True:
+    try:
+        conn = psycopg.connect(
+            dbname="fastapi",
+            user="postgres",
+            password="ldvj1242210@L",
+            host="localhost",
+            port=5432,
+            row_factory = dict_row
+        )
+        cursor = conn.cursor()
+        print('Databasea connection is successfully connect.')
+        break
+
+    except Exception as error:
+        print("Connecting to Database failed.")
+        print('Error: ',error)
+        time.sleep(2)
+
 def uniqueID(my_posts: List[Dict[str,Any]]) -> int:
     while True:
         new_id = randrange(0, 100000)
@@ -35,17 +54,17 @@ def root():
 
 @app.get('/posts')
 def getPost():
-    return {'data':my_posts}
+    cursor.execute('''SELECT * FROM posts''')
+    post = cursor.fetchall() #fetchaall retrvies all the data from the last executed query
+    return {'data':post}
 
 @app.post('/posts', status_code=status.HTTP_201_CREATED)
 def createPost(posts: postSchema):
-    cursor.execute('''SELECT * FROM posts''')
-    output2 = cursor.fetchall()
-    data = posts.model_dump()
-    new_id = uniqueID(my_posts)
-    data["id"] = new_id 
-    my_posts.append(data)
-
+    cursor.execute('''INSERT INTO posts (title, content, is_published) VALUES (%s,%s,%s);''',(posts.title,posts.content,posts.is_published))
+    conn.commit()
+    cursor.execute(''' SELECT * FROM posts''')
+    all_posts = cursor.fetchall() 
+    return {'data': all_posts}
 
 # retreive a single post dataa based on it's unique identifier (ID)
 @app.get("/posts/{id}")
