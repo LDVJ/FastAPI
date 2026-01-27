@@ -33,20 +33,17 @@ while True:
         print('Error: ',error)
         time.sleep(2)
 
-def uniqueID(my_posts: List[Dict[str,Any]]) -> int:
-    while True:
-        new_id = randrange(0, 100000)
-        if not any(p["id"] == new_id for p in my_posts):
-            return new_id
+# def uniqueID(my_posts: List[Dict[str,Any]]) -> int:
+#     while True:
+#         new_id = randrange(0, 100000)
+#         if not any(p["id"] == new_id for p in my_posts):
+#             return new_id
 
-def findIndex(id):
-    for i,p in enumerate(my_posts):
-        if p['id'] == id:
-            return i
-    return None
-
-my_posts = [{"title":"title of the post 1","content": "content of the post 1","is_published":True,"rating":4,"id":1},
-            {"title":"title of the post 2","content": "content of the post 2","is_published":False,"rating":2,"id":2}]
+# def findIndex(id):
+#     for i,p in enumerate(my_posts):
+#         if p['id'] == id:
+#             return i
+#     return None
 
 @app.get('/')
 def root():
@@ -62,34 +59,39 @@ def getPost():
 def createPost(posts: postSchema):
     cursor.execute('''INSERT INTO posts (title, content, is_published) VALUES (%s,%s,%s);''',(posts.title,posts.content,posts.is_published))
     conn.commit()
-    cursor.execute(''' SELECT * FROM posts''')
+    cursor.execute(''' SELECT * FROM posts ORDER BY crerated_at DESC''')
     all_posts = cursor.fetchall() 
     return {'data': all_posts}
 
 # retreive a single post dataa based on it's unique identifier (ID)
 @app.get("/posts/{id}")
 def getPost(id: int):
-    for p in my_posts:
-        if p["id"] == id:
-            return {"data": p}
+    cursor.execute('''SELECT * FROM posts WHERE id = %s''',(id,))
+    post = cursor.fetchone()
+    if post is not None:    
+        return {'data': post}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Post with id = {id} not found')
-# Path Operation
 
 @app.put('/posts/{id}', status_code=status.HTTP_200_OK)
 def updatepost(id:int, post: postSchema):
-    index = findIndex(id)
-    if index is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not post Found with id: {id}")
-    postDict = post.model_dump()
-    postDict['id'] = id
-    my_posts[index] = post
-    return {"message":f"Data of the post id: {id} updated successfully."}
+    cursor.execute('''UPDATE posts SET title = %s,content = %s,is_published = %s WHERE id = %s ''',(post.title,post.content,post.is_published,id))
+    conn.commit()
+    cursor.execute('''SELECT * FROM posts WHERE id = %s''',(id,))
+    update_post = cursor.fetchone()
+    if update_post is not None:
+        return {"message":f"Data of the post id: {id} updated successfully.",'data':update_post}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Post with id = {id} not found')
 
 #Delete Post
 @app.delete('/posts/{id}')
 def deletepost(id: int):
-    index = findIndex(id)
-    if index is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not post Found with id: {id}")
-    my_posts.pop(index)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    cursor.execute('''SELECT * FROM posts WHERE id = %s''',(id,))
+    check = cursor.fetchone()
+    if check is not None:
+        cursor.execute('''DELETE FROM posts WHERE id = %s''',(id,)) 
+        conn.commit()
+        cursor.execute('''SELECT * FROM posts''')
+        post = cursor.fetchall()
+        # posts = [dict(row) for row in rows]
+        return {'message':'Post deleted successfully.','data':post}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not post Found with id: {id}")
