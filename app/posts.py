@@ -19,7 +19,7 @@ while True:
         conn = psycopg.connect(
             dbname="fastapi",
             user="postgres",
-            password="ldvj1242210@L",
+            password="testing details",
             host="localhost",
             port=5432,
             row_factory = dict_row
