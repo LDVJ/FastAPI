@@ -19,7 +19,7 @@ while True:
         conn = psycopg.connect(
             dbname="fastapi",
             user="postgres",
-            password="ldvj1242210@L",
+            password="testing details",
             host="localhost",
             port=5432,
             row_factory = dict_row
@@ -85,6 +85,7 @@ def updatepost(id:int, post: postSchema):
 #Delete Post
 @app.delete('/posts/{id}')
 def deletepost(id: int):
+<<<<<<< HEAD
     cursor.execute('''SELECT * FROM posts WHERE id = %s''',(id,))
     check = cursor.fetchone()
     if check is not None:
@@ -95,3 +96,10 @@ def deletepost(id: int):
         # posts = [dict(row) for row in rows]
         return {'message':'Post deleted successfully.','data':post}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not post Found with id: {id}")
+=======
+    index = findIndex(id)
+    if index is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not post Found with id: {id}")
+    my_posts.pop(index)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+>>>>>>> a5f0f108b8f9f89b9bc9df9a10ab1e49cc6579f4
