@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean,TIMESTAMP
+from sqlalchemy import Column, Integer, String, Boolean,DateTime
+from sqlalchemy.sql import func
 from .db import Base
 
 class postdb(Base):
@@ -8,4 +9,4 @@ class postdb(Base):
     title = Column(String, nullable = False)
     content = Column(String,nullable = True)
     is_published = Column(Boolean,nullable=False,default=True)
-    creted_at = Column()
+    creted_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
