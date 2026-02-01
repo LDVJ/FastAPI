@@ -71,4 +71,9 @@
 #         users.pop(index)
 #         return users
 #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'No user found with id: {id}')
+import copy
 
+if '2' != 2:
+    print(True)
+else:
+    print(False)
