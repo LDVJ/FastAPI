@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, EmailStr
 from datetime import datetime
+from sqlmodel import SQLModel
 
 class postSchema(BaseModel):
     title: str
@@ -7,6 +8,13 @@ class postSchema(BaseModel):
     is_published: bool = True
     rating: int | None = None
 
+class postResponse(postSchema):
+    id: int
+    created_at : datetime
+    # rating: int 
+    model_config = {
+        'from_attributes': True
+    }
 
 class userSchema(BaseModel):
     name : str
@@ -15,3 +23,8 @@ class userSchema(BaseModel):
     occupation : str | None = None
     is_active: bool | None = True
     updateAt : datetime | None = None
+
+class createUser(userSchema):
+    pass
+
+# class 

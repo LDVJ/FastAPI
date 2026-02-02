@@ -9,7 +9,7 @@ class postdb(Base):
     title = Column(String, nullable = False)
     content = Column(String,nullable = True)
     is_published = Column(Boolean,nullable=False,default=True)
-    creted_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 class userdb(Base):
     __tablename__ = 'userdb'
