@@ -12,3 +12,12 @@ SessionLocal = sessionmaker(autocommit= False,
                             autoflush=False,
                             bind=engine)
 Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        print('DB Connected')
+        yield db
+    finally:
+        print('DB Disconnected')
+        db.close()

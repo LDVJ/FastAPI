@@ -16,7 +16,16 @@ class postResponse(postSchema):
         'from_attributes': True
     }
 
-class userSchema(BaseModel):
+class createUser(BaseModel):
+    name : str
+    createAt : datetime = Field(default_factory=datetime.now)
+    mail : EmailStr
+    occupation : str | None = None
+    is_active: bool | None = True
+    updateAt : datetime | None = None
+    password : str 
+
+class UserResponse(BaseModel):
     name : str
     createAt : datetime = Field(default_factory=datetime.now)
     mail : EmailStr
@@ -24,7 +33,10 @@ class userSchema(BaseModel):
     is_active: bool | None = True
     updateAt : datetime | None = None
 
-class createUser(userSchema):
-    pass
+class updateUser(BaseModel):
+    name: str | None =  None
+    occupation: str | None = None
+    is_active: bool | None = True
+
 
 # class 
