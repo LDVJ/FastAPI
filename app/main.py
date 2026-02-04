@@ -9,7 +9,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-@app.gett("/")
+@app.get("/")
 def landing():
     return {'message':'WElcome to fasapi '}
 
